@@ -1,17 +1,22 @@
 /*
     LankaID / Identity Issuance Service
-    Current database structure snapshot
+    Complete database setup (fresh / empty database)
 
-    Source database : identity_issuance_service on localhost
-    Generated       : 2026-09-19 19:16:55 +05:30
-    Contents        : Schema only (no application or personal data)
+    Database        : identity_issuance_service
+    Consolidated    : 2026-11-04
+    Contents        : All tables, keys, indexes and default fee / maintenance settings
+    Administrator   : Created on first application startup, not seeded by SQL.
+                      UserAccount stores email and BCrypt password_hash;
+                      StaffAccount stores SYSTEM_ADMIN with the same user_id.
+                      Initial demo login: admin@gov.lk / admin12345.
+                      Later startups preserve the stored password and status.
     SQL dialect     : Microsoft SQL Server (T-SQL)
 
     Usage:
       1. Run this entire file in SQL Server Management Studio or Azure Data Studio.
       2. The database is created if it does not exist.
       3. For safety, execution stops if the target database already contains any
-         application tables. Use a fresh/empty database for this snapshot.
+         application tables. Existing databases are never reset by this script.
 */
 
 USE [master];
@@ -31,6 +36,17 @@ SET QUOTED_IDENTIFIER ON;
 SET XACT_ABORT ON;
 GO
 
+SET NOCOUNT ON;
+SET ANSI_PADDING ON;
+SET ANSI_WARNINGS ON;
+SET ARITHABORT ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET NUMERIC_ROUNDABORT OFF;
+
+-- Keep the guard and all schema changes in one batch and transaction so a
+-- non-empty database stops here and a failed setup cannot leave partial tables.
+BEGIN TRY
+    BEGIN TRANSACTION;
 IF EXISTS
 (
     SELECT 1
@@ -43,12 +59,10 @@ BEGIN
           'Schema creation stopped: the target database already contains application tables. Use a fresh or empty database.',
           1;
 END;
-GO
+
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[Centre](
 	[centre_id] [int] IDENTITY(1,1) NOT NULL,
@@ -64,13 +78,10 @@ CREATE TABLE [dbo].[Centre](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[GovernmentIdentityRecord](
 	[government_record_id] [int] IDENTITY(1,1) NOT NULL,
@@ -86,13 +97,10 @@ CREATE TABLE [dbo].[GovernmentIdentityRecord](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[UserAccount](
 	[user_id] [int] IDENTITY(1,1) NOT NULL,
@@ -117,13 +125,10 @@ CREATE TABLE [dbo].[UserAccount](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[WalkInSlot](
 	[slot_id] [int] IDENTITY(1,1) NOT NULL,
@@ -144,13 +149,10 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[StaffAccount](
 	[user_id] [int] NOT NULL,
@@ -169,13 +171,10 @@ CREATE TABLE [dbo].[StaffAccount](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[CitizenAccount](
 	[user_id] [int] NOT NULL,
@@ -211,13 +210,10 @@ CREATE TABLE [dbo].[CitizenAccount](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[BiometricAppointmentSlot](
 	[slot_id] [int] IDENTITY(1,1) NOT NULL,
@@ -243,13 +239,10 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[Application](
 	[application_id] [int] IDENTITY(1,1) NOT NULL,
@@ -273,13 +266,10 @@ CREATE TABLE [dbo].[Application](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[SupportRequest](
 	[request_id] [int] IDENTITY(1,1) NOT NULL,
@@ -298,13 +288,10 @@ CREATE TABLE [dbo].[SupportRequest](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[NICApplication](
 	[application_id] [int] NOT NULL,
@@ -318,13 +305,10 @@ CREATE TABLE [dbo].[NICApplication](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[StatusUpdate](
 	[status_update_id] [int] IDENTITY(1,1) NOT NULL,
@@ -339,13 +323,10 @@ CREATE TABLE [dbo].[StatusUpdate](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[DocumentDelivery](
 	[delivery_id] [int] IDENTITY(1,1) NOT NULL,
@@ -371,13 +352,10 @@ CREATE TABLE [dbo].[DocumentDelivery](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[PassportApplication](
 	[application_id] [int] NOT NULL,
@@ -391,13 +369,10 @@ CREATE TABLE [dbo].[PassportApplication](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[Appointment](
 	[appointment_id] [int] IDENTITY(1,1) NOT NULL,
@@ -425,13 +400,10 @@ CREATE TABLE [dbo].[Appointment](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[ApplicationReview](
 	[review_id] [int] IDENTITY(1,1) NOT NULL,
@@ -452,13 +424,10 @@ CREATE TABLE [dbo].[ApplicationReview](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[DirectorReviewReferral](
 	[referral_id] [int] IDENTITY(1,1) NOT NULL,
@@ -478,22 +447,17 @@ CREATE TABLE [dbo].[DirectorReviewReferral](
  CONSTRAINT [pk_director_review_referral] PRIMARY KEY CLUSTERED ([referral_id] ASC)
 )
 
-GO
 
 CREATE UNIQUE NONCLUSTERED INDEX [ux_director_referral_pending_application]
 ON [dbo].[DirectorReviewReferral] ([application_id] ASC)
 WHERE ([referral_status]='PENDING')
-GO
 
 CREATE NONCLUSTERED INDEX [ix_director_referral_queue]
 ON [dbo].[DirectorReviewReferral] ([referral_status] ASC, [created_at] ASC, [referral_id] ASC)
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[ApplicationDocument](
 	[document_id] [int] IDENTITY(1,1) NOT NULL,
@@ -510,13 +474,10 @@ CREATE TABLE [dbo].[ApplicationDocument](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[BiometricCollection](
 	[application_id] [int] NOT NULL,
@@ -529,13 +490,10 @@ CREATE TABLE [dbo].[BiometricCollection](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[Payment](
 	[payment_id] [int] IDENTITY(1,1) NOT NULL,
@@ -564,13 +522,10 @@ CREATE TABLE [dbo].[Payment](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[AppointmentCheckIn](
 	[appointment_id] [int] NOT NULL,
@@ -583,13 +538,10 @@ CREATE TABLE [dbo].[AppointmentCheckIn](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[AppointmentChangePayment](
 	[change_payment_id] [int] IDENTITY(1,1) NOT NULL,
@@ -610,13 +562,10 @@ UNIQUE NONCLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[Notification](
 	[notification_id] [int] IDENTITY(1,1) NOT NULL,
@@ -632,13 +581,10 @@ CREATE TABLE [dbo].[Notification](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_NULLS ON
-GO
 
 SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[UserNotification](
 	[notification_id] [int] NOT NULL,
@@ -652,11 +598,9 @@ CREATE TABLE [dbo].[UserNotification](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 )
 
-GO
 
 SET ANSI_PADDING ON
 
-GO
 
 CREATE NONCLUSTERED INDEX [IX_BiometricAppointmentSlot_calendar] ON [dbo].[BiometricAppointmentSlot]
 (
@@ -665,312 +609,221 @@ CREATE NONCLUSTERED INDEX [IX_BiometricAppointmentSlot_calendar] ON [dbo].[Biome
 	[slot_date] ASC,
 	[is_available] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
-GO
 
 SET ANSI_PADDING ON
 
-GO
 
 CREATE NONCLUSTERED INDEX [IX_Appointment_biometric_slot_status] ON [dbo].[Appointment]
 (
 	[biometric_slot_id] ASC,
 	[appointment_status] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
-GO
 
 ALTER TABLE [dbo].[GovernmentIdentityRecord] ADD  DEFAULT ('ACTIVE') FOR [identity_status]
-GO
 
 ALTER TABLE [dbo].[UserAccount] ADD  DEFAULT ('ACTIVE') FOR [account_status]
-GO
 
 ALTER TABLE [dbo].[UserAccount] ADD  DEFAULT ('N') FOR [email_verified]
-GO
 
 ALTER TABLE [dbo].[UserAccount] ADD  DEFAULT ('N') FOR [phone_verified]
-GO
 
 ALTER TABLE [dbo].[UserAccount] ADD  DEFAULT (getdate()) FOR [registered_at]
-GO
 
 ALTER TABLE [dbo].[WalkInSlot] ADD  CONSTRAINT [df_walk_in_slot_available]  DEFAULT ('Y') FOR [is_available]
-GO
 
 ALTER TABLE [dbo].[Centre] ADD  CONSTRAINT [df_centre_status]  DEFAULT ('ACTIVE') FOR [centre_status]
-GO
 
 ALTER TABLE [dbo].[StaffAccount] ADD  DEFAULT ('ACTIVE') FOR [staff_status]
-GO
 
 ALTER TABLE [dbo].[StaffAccount] ADD  DEFAULT (getdate()) FOR [staff_created_at]
-GO
 
 ALTER TABLE [dbo].[CitizenAccount] ADD  DEFAULT ('Y') FOR [postal_same_as_permanent]
-GO
 
 ALTER TABLE [dbo].[CitizenAccount] ADD  DEFAULT ('N') FOR [dual_citizen]
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot] ADD  CONSTRAINT [DF_BiometricAppointmentSlot_created_at]  DEFAULT (sysdatetime()) FOR [created_at]
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot] ADD  CONSTRAINT [DF_BiometricAppointmentSlot_updated_at]  DEFAULT (sysdatetime()) FOR [updated_at]
-GO
 
 ALTER TABLE [dbo].[Application] ADD  DEFAULT ('DRAFT') FOR [current_status]
-GO
 
 ALTER TABLE [dbo].[Application] ADD  DEFAULT ('N') FOR [declaration_accepted]
-GO
 
 ALTER TABLE [dbo].[Application] ADD  DEFAULT (getdate()) FOR [created_at]
-GO
 
 ALTER TABLE [dbo].[Application] ADD  DEFAULT (getdate()) FOR [updated_at]
-GO
 
 ALTER TABLE [dbo].[SupportRequest] ADD  DEFAULT (getdate()) FOR [created_at]
-GO
 
 ALTER TABLE [dbo].[SupportRequest] ADD  DEFAULT ('OPEN') FOR [request_status]
-GO
 
 ALTER TABLE [dbo].[StatusUpdate] ADD  DEFAULT (getdate()) FOR [changed_at]
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery] ADD  CONSTRAINT [df_document_delivery_status]  DEFAULT ('PREPARING') FOR [delivery_status]
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery] ADD  CONSTRAINT [df_document_delivery_created_at]  DEFAULT (getdate()) FOR [created_at]
-GO
 
 ALTER TABLE [dbo].[PassportApplication] ADD  DEFAULT ('NORMAL') FOR [service_level]
-GO
 
 ALTER TABLE [dbo].[PassportApplication] ADD  DEFAULT ('ALL_COUNTRIES') FOR [travel_document_type]
-GO
 
 ALTER TABLE [dbo].[Appointment] ADD  DEFAULT ('PENDING_PAYMENT') FOR [appointment_status]
-GO
 
 ALTER TABLE [dbo].[Appointment] ADD  DEFAULT (getdate()) FOR [created_at]
-GO
 
 ALTER TABLE [dbo].[Appointment] ADD  CONSTRAINT [DF_Appointment_booking_version]  DEFAULT ((0)) FOR [booking_version]
-GO
 
 ALTER TABLE [dbo].[ApplicationReview] ADD  DEFAULT (getdate()) FOR [reviewed_at]
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument] ADD  DEFAULT (getdate()) FOR [uploaded_at]
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument] ADD  DEFAULT ('PENDING') FOR [verification_status]
-GO
 
 ALTER TABLE [dbo].[BiometricCollection] ADD  DEFAULT (getdate()) FOR [collected_at]
-GO
 
 ALTER TABLE [dbo].[BiometricCollection] ADD  DEFAULT ('COLLECTED') FOR [collection_status]
-GO
 
 ALTER TABLE [dbo].[Payment] ADD  DEFAULT ('PENDING') FOR [payment_status]
-GO
 
 ALTER TABLE [dbo].[Payment] ADD  DEFAULT (getdate()) FOR [created_at]
-GO
 
 ALTER TABLE [dbo].[AppointmentCheckIn] ADD  DEFAULT (getdate()) FOR [checked_in_at]
-GO
 
 ALTER TABLE [dbo].[Notification] ADD  DEFAULT (getdate()) FOR [created_at]
-GO
 
 ALTER TABLE [dbo].[Notification] ADD  DEFAULT ('N') FOR [is_broadcast]
-GO
 
 ALTER TABLE [dbo].[UserNotification] ADD  DEFAULT (getdate()) FOR [delivered_at]
-GO
 
 ALTER TABLE [dbo].[WalkInSlot]  WITH CHECK ADD  CONSTRAINT [fk_walk_in_slot_centre] FOREIGN KEY([centre_id])
 REFERENCES [dbo].[Centre] ([centre_id])
-GO
 
 ALTER TABLE [dbo].[WalkInSlot] CHECK CONSTRAINT [fk_walk_in_slot_centre]
-GO
 
 ALTER TABLE [dbo].[StaffAccount]  WITH CHECK ADD  CONSTRAINT [fk_staff_creator] FOREIGN KEY([created_by_staff_id])
 REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[StaffAccount] CHECK CONSTRAINT [fk_staff_creator]
-GO
 
 ALTER TABLE [dbo].[StaffAccount]  WITH CHECK ADD  CONSTRAINT [fk_staff_user] FOREIGN KEY([user_id])
 REFERENCES [dbo].[UserAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[StaffAccount] CHECK CONSTRAINT [fk_staff_user]
-GO
 
 ALTER TABLE [dbo].[CitizenAccount]  WITH CHECK ADD  CONSTRAINT [fk_citizen_government] FOREIGN KEY([government_record_id])
 REFERENCES [dbo].[GovernmentIdentityRecord] ([government_record_id])
-GO
 
 ALTER TABLE [dbo].[CitizenAccount] CHECK CONSTRAINT [fk_citizen_government]
-GO
 
 ALTER TABLE [dbo].[CitizenAccount]  WITH CHECK ADD  CONSTRAINT [fk_citizen_user] FOREIGN KEY([user_id])
 REFERENCES [dbo].[UserAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[CitizenAccount] CHECK CONSTRAINT [fk_citizen_user]
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot]  WITH CHECK ADD FOREIGN KEY([centre_id])
 REFERENCES [dbo].[Centre] ([centre_id])
-GO
 
 ALTER TABLE [dbo].[Application]  WITH CHECK ADD  CONSTRAINT [fk_application_citizen] FOREIGN KEY([citizen_id])
 REFERENCES [dbo].[CitizenAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[Application] CHECK CONSTRAINT [fk_application_citizen]
-GO
 
 ALTER TABLE [dbo].[SupportRequest]  WITH CHECK ADD  CONSTRAINT [fk_support_citizen] FOREIGN KEY([citizen_id])
 REFERENCES [dbo].[CitizenAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[SupportRequest] CHECK CONSTRAINT [fk_support_citizen]
-GO
 
 ALTER TABLE [dbo].[SupportRequest]  WITH CHECK ADD  CONSTRAINT [fk_support_staff] FOREIGN KEY([handled_by_staff_id])
 REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[SupportRequest] CHECK CONSTRAINT [fk_support_staff]
-GO
 
 ALTER TABLE [dbo].[NICApplication]  WITH CHECK ADD  CONSTRAINT [fk_nic_application] FOREIGN KEY([application_id])
 REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[NICApplication] CHECK CONSTRAINT [fk_nic_application]
-GO
 
 ALTER TABLE [dbo].[StatusUpdate]  WITH CHECK ADD  CONSTRAINT [fk_status_application] FOREIGN KEY([application_id])
 REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[StatusUpdate] CHECK CONSTRAINT [fk_status_application]
-GO
 
 ALTER TABLE [dbo].[StatusUpdate]  WITH CHECK ADD  CONSTRAINT [fk_status_staff] FOREIGN KEY([changed_by_staff_id])
 REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[StatusUpdate] CHECK CONSTRAINT [fk_status_staff]
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery]  WITH CHECK ADD  CONSTRAINT [fk_document_delivery_application] FOREIGN KEY([application_id])
 REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery] CHECK CONSTRAINT [fk_document_delivery_application]
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery]  WITH CHECK ADD  CONSTRAINT [fk_document_delivery_centre] FOREIGN KEY([centre_id])
 REFERENCES [dbo].[Centre] ([centre_id])
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery] CHECK CONSTRAINT [fk_document_delivery_centre]
-GO
 
 ALTER TABLE [dbo].[PassportApplication]  WITH CHECK ADD  CONSTRAINT [fk_passport_application] FOREIGN KEY([application_id])
 REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[PassportApplication] CHECK CONSTRAINT [fk_passport_application]
-GO
 
 ALTER TABLE [dbo].[Appointment]  WITH CHECK ADD  CONSTRAINT [fk_appointment_application] FOREIGN KEY([application_id])
 REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[Appointment] CHECK CONSTRAINT [fk_appointment_application]
-GO
 
 ALTER TABLE [dbo].[Appointment]  WITH CHECK ADD  CONSTRAINT [FK_Appointment_BiometricAppointmentSlot] FOREIGN KEY([biometric_slot_id])
 REFERENCES [dbo].[BiometricAppointmentSlot] ([slot_id])
-GO
 
 ALTER TABLE [dbo].[Appointment] CHECK CONSTRAINT [FK_Appointment_BiometricAppointmentSlot]
-GO
 
 ALTER TABLE [dbo].[Appointment]  WITH CHECK ADD  CONSTRAINT [fk_appointment_centre] FOREIGN KEY([centre_id])
 REFERENCES [dbo].[Centre] ([centre_id])
-GO
 
 ALTER TABLE [dbo].[Appointment] CHECK CONSTRAINT [fk_appointment_centre]
-GO
 
 ALTER TABLE [dbo].[Appointment]  WITH CHECK ADD  CONSTRAINT [fk_appointment_citizen] FOREIGN KEY([citizen_id])
 REFERENCES [dbo].[CitizenAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[Appointment] CHECK CONSTRAINT [fk_appointment_citizen]
-GO
 
 ALTER TABLE [dbo].[ApplicationReview]  WITH CHECK ADD  CONSTRAINT [fk_review_application] FOREIGN KEY([application_id])
 REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[ApplicationReview] CHECK CONSTRAINT [fk_review_application]
-GO
 
 ALTER TABLE [dbo].[ApplicationReview]  WITH CHECK ADD  CONSTRAINT [fk_review_staff] FOREIGN KEY([staff_id])
 REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[ApplicationReview] CHECK CONSTRAINT [fk_review_staff]
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] ADD CONSTRAINT [df_director_referral_status]
 DEFAULT ('PENDING') FOR [referral_status]
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] ADD CONSTRAINT [df_director_referral_created]
 DEFAULT (sysdatetime()) FOR [created_at]
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] WITH CHECK ADD CONSTRAINT [fk_director_referral_application]
 FOREIGN KEY([application_id]) REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] WITH CHECK ADD CONSTRAINT [fk_director_referral_referrer]
 FOREIGN KEY([referred_by_staff_id]) REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] WITH CHECK ADD CONSTRAINT [fk_director_referral_director]
 FOREIGN KEY([director_id]) REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] WITH CHECK ADD CONSTRAINT [fk_director_referral_withdrawer]
 FOREIGN KEY([withdrawn_by_staff_id]) REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] WITH CHECK ADD CONSTRAINT [chk_director_referral_category]
 CHECK ([referral_category] IN ('IDENTITY_CONFLICT','DOCUMENT_CONCERN','POSSIBLE_DUPLICATE','POLICY_EXCEPTION','OTHER'))
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] WITH CHECK ADD CONSTRAINT [chk_director_referral_status]
 CHECK ([referral_status] IN ('PENDING','RESPONDED','WITHDRAWN'))
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] WITH CHECK ADD CONSTRAINT [chk_director_referral_recommendation]
 CHECK ([recommendation] IS NULL OR [recommendation] IN ('APPROVE','REJECT','REQUEST_CORRECTION'))
-GO
 
 ALTER TABLE [dbo].[DirectorReviewReferral] WITH CHECK ADD CONSTRAINT [chk_director_referral_state]
 CHECK (
@@ -983,328 +836,224 @@ CHECK (
     ([referral_status]='WITHDRAWN' AND [withdrawn_by_staff_id] IS NOT NULL
         AND [withdrawal_reason] IS NOT NULL AND [withdrawn_at] IS NOT NULL AND [responded_at] IS NULL)
 )
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument]  WITH CHECK ADD  CONSTRAINT [fk_document_application] FOREIGN KEY([application_id])
 REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument] CHECK CONSTRAINT [fk_document_application]
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument]  WITH CHECK ADD  CONSTRAINT [fk_document_staff] FOREIGN KEY([verified_by_staff_id])
 REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument] CHECK CONSTRAINT [fk_document_staff]
-GO
 
 ALTER TABLE [dbo].[BiometricCollection]  WITH CHECK ADD  CONSTRAINT [fk_biometric_application] FOREIGN KEY([application_id])
 REFERENCES [dbo].[Application] ([application_id])
-GO
 
 ALTER TABLE [dbo].[BiometricCollection] CHECK CONSTRAINT [fk_biometric_application]
-GO
 
 ALTER TABLE [dbo].[BiometricCollection]  WITH CHECK ADD  CONSTRAINT [fk_biometric_staff] FOREIGN KEY([staff_id])
 REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[BiometricCollection] CHECK CONSTRAINT [fk_biometric_staff]
-GO
 
 ALTER TABLE [dbo].[Payment]  WITH CHECK ADD  CONSTRAINT [fk_payment_appointment] FOREIGN KEY([appointment_id])
 REFERENCES [dbo].[Appointment] ([appointment_id])
-GO
 
 ALTER TABLE [dbo].[Payment] CHECK CONSTRAINT [fk_payment_appointment]
-GO
 
 ALTER TABLE [dbo].[AppointmentCheckIn]  WITH CHECK ADD  CONSTRAINT [fk_check_in_appointment] FOREIGN KEY([appointment_id])
 REFERENCES [dbo].[Appointment] ([appointment_id])
-GO
 
 ALTER TABLE [dbo].[AppointmentCheckIn] CHECK CONSTRAINT [fk_check_in_appointment]
-GO
 
 ALTER TABLE [dbo].[AppointmentCheckIn]  WITH CHECK ADD  CONSTRAINT [fk_check_in_staff] FOREIGN KEY([staff_id])
 REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[AppointmentCheckIn] CHECK CONSTRAINT [fk_check_in_staff]
-GO
 
 ALTER TABLE [dbo].[AppointmentChangePayment]  WITH CHECK ADD FOREIGN KEY([appointment_id])
 REFERENCES [dbo].[Appointment] ([appointment_id])
-GO
 
 ALTER TABLE [dbo].[Notification]  WITH CHECK ADD  CONSTRAINT [fk_notification_staff] FOREIGN KEY([sent_by_staff_id])
 REFERENCES [dbo].[StaffAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[Notification] CHECK CONSTRAINT [fk_notification_staff]
-GO
 
 ALTER TABLE [dbo].[Notification]  WITH CHECK ADD  CONSTRAINT [fk_notification_status] FOREIGN KEY([generated_by_status_update_id])
 REFERENCES [dbo].[StatusUpdate] ([status_update_id])
-GO
 
 ALTER TABLE [dbo].[Notification] CHECK CONSTRAINT [fk_notification_status]
-GO
 
 ALTER TABLE [dbo].[UserNotification]  WITH CHECK ADD  CONSTRAINT [fk_notification_user] FOREIGN KEY([user_id])
 REFERENCES [dbo].[UserAccount] ([user_id])
-GO
 
 ALTER TABLE [dbo].[UserNotification] CHECK CONSTRAINT [fk_notification_user]
-GO
 
 ALTER TABLE [dbo].[UserNotification]  WITH CHECK ADD  CONSTRAINT [fk_user_notification] FOREIGN KEY([notification_id])
 REFERENCES [dbo].[Notification] ([notification_id])
-GO
 
 ALTER TABLE [dbo].[UserNotification] CHECK CONSTRAINT [fk_user_notification]
-GO
 
 ALTER TABLE [dbo].[Centre]  WITH CHECK ADD  CONSTRAINT [chk_centre_capacity] CHECK  (([daily_capacity]>(0)))
-GO
 
 ALTER TABLE [dbo].[Centre] CHECK CONSTRAINT [chk_centre_capacity]
-GO
 
 ALTER TABLE [dbo].[Centre]  WITH CHECK ADD  CONSTRAINT [chk_centre_status] CHECK  (([centre_status]='INACTIVE' OR [centre_status]='ACTIVE'))
-GO
 
 ALTER TABLE [dbo].[Centre] CHECK CONSTRAINT [chk_centre_status]
-GO
 
 ALTER TABLE [dbo].[GovernmentIdentityRecord]  WITH CHECK ADD  CONSTRAINT [chk_government_status] CHECK  (([identity_status]='CANCELLED' OR [identity_status]='DAMAGED' OR [identity_status]='LOST' OR [identity_status]='EXPIRED' OR [identity_status]='ACTIVE'))
-GO
 
 ALTER TABLE [dbo].[GovernmentIdentityRecord] CHECK CONSTRAINT [chk_government_status]
-GO
 
 ALTER TABLE [dbo].[UserAccount]  WITH CHECK ADD  CONSTRAINT [chk_email_verified] CHECK  (([email_verified]='N' OR [email_verified]='Y'))
-GO
 
 ALTER TABLE [dbo].[UserAccount] CHECK CONSTRAINT [chk_email_verified]
-GO
 
 ALTER TABLE [dbo].[UserAccount]  WITH CHECK ADD  CONSTRAINT [chk_phone_verified] CHECK  (([phone_verified]='N' OR [phone_verified]='Y'))
-GO
 
 ALTER TABLE [dbo].[UserAccount] CHECK CONSTRAINT [chk_phone_verified]
-GO
 
 ALTER TABLE [dbo].[UserAccount]  WITH CHECK ADD  CONSTRAINT [chk_user_status] CHECK  (([account_status]='REMOVED' OR [account_status]='SUSPENDED' OR [account_status]='ACTIVE'))
-GO
 
 ALTER TABLE [dbo].[UserAccount] CHECK CONSTRAINT [chk_user_status]
-GO
 
 ALTER TABLE [dbo].[WalkInSlot]  WITH CHECK ADD  CONSTRAINT [chk_walk_in_slot_available] CHECK  (([is_available]='N' OR [is_available]='Y'))
-GO
 
 ALTER TABLE [dbo].[WalkInSlot] CHECK CONSTRAINT [chk_walk_in_slot_available]
-GO
 
 ALTER TABLE [dbo].[WalkInSlot]  WITH CHECK ADD  CONSTRAINT [chk_walk_in_slot_capacity] CHECK  (([slot_capacity]>=(1) AND [slot_capacity]<=(100)))
-GO
 
 ALTER TABLE [dbo].[WalkInSlot] CHECK CONSTRAINT [chk_walk_in_slot_capacity]
-GO
 
 ALTER TABLE [dbo].[StaffAccount]  WITH CHECK ADD  CONSTRAINT [chk_staff_role] CHECK  (([staff_role]='SYSTEM_ADMIN' OR [staff_role]='DIRECTOR' OR [staff_role]='CSR' OR [staff_role]='PASSPORT_OFFICER' OR [staff_role]='NIC_OFFICER'))
-GO
 
 ALTER TABLE [dbo].[StaffAccount] CHECK CONSTRAINT [chk_staff_role]
-GO
 
 ALTER TABLE [dbo].[StaffAccount]  WITH CHECK ADD  CONSTRAINT [chk_staff_status] CHECK  (([staff_status]='REMOVED' OR [staff_status]='SUSPENDED' OR [staff_status]='ACTIVE'))
-GO
 
 ALTER TABLE [dbo].[StaffAccount] CHECK CONSTRAINT [chk_staff_status]
-GO
 
 ALTER TABLE [dbo].[CitizenAccount]  WITH CHECK ADD  CONSTRAINT [chk_citizen_civil_status] CHECK  (([civil_status] IS NULL OR ([civil_status]='DIVORCED' OR [civil_status]='WIDOWED' OR [civil_status]='SINGLE' OR [civil_status]='MARRIED')))
-GO
 
 ALTER TABLE [dbo].[CitizenAccount] CHECK CONSTRAINT [chk_citizen_civil_status]
-GO
 
 ALTER TABLE [dbo].[CitizenAccount]  WITH CHECK ADD  CONSTRAINT [chk_citizen_gender] CHECK  (([gender] IS NULL OR ([gender]='FEMALE' OR [gender]='MALE')))
-GO
 
 ALTER TABLE [dbo].[CitizenAccount] CHECK CONSTRAINT [chk_citizen_gender]
-GO
 
 ALTER TABLE [dbo].[CitizenAccount]  WITH CHECK ADD  CONSTRAINT [chk_dual_citizen] CHECK  (([dual_citizen]='N' OR [dual_citizen]='Y'))
-GO
 
 ALTER TABLE [dbo].[CitizenAccount] CHECK CONSTRAINT [chk_dual_citizen]
-GO
 
 ALTER TABLE [dbo].[CitizenAccount]  WITH CHECK ADD  CONSTRAINT [chk_postal_same] CHECK  (([postal_same_as_permanent]='N' OR [postal_same_as_permanent]='Y'))
-GO
 
 ALTER TABLE [dbo].[CitizenAccount] CHECK CONSTRAINT [chk_postal_same]
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot]  WITH CHECK ADD  CONSTRAINT [CK_BiometricAppointmentSlot_available] CHECK  (([is_available]='N' OR [is_available]='Y'))
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot] CHECK CONSTRAINT [CK_BiometricAppointmentSlot_available]
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot]  WITH CHECK ADD  CONSTRAINT [CK_BiometricAppointmentSlot_capacity] CHECK  (([slot_capacity]>=(1) AND [slot_capacity]<=(100)))
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot] CHECK CONSTRAINT [CK_BiometricAppointmentSlot_capacity]
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot]  WITH CHECK ADD  CONSTRAINT [CK_BiometricAppointmentSlot_service_type] CHECK  (([service_type]='PASSPORT' OR [service_type]='NIC'))
-GO
 
 ALTER TABLE [dbo].[BiometricAppointmentSlot] CHECK CONSTRAINT [CK_BiometricAppointmentSlot_service_type]
-GO
 
 ALTER TABLE [dbo].[Application]  WITH CHECK ADD  CONSTRAINT [chk_application_kind] CHECK  (([application_kind]='CHANGE' OR [application_kind]='DAMAGED' OR [application_kind]='LOST' OR [application_kind]='RENEWAL' OR [application_kind]='NEW'))
-GO
 
 ALTER TABLE [dbo].[Application] CHECK CONSTRAINT [chk_application_kind]
-GO
 
 ALTER TABLE [dbo].[Application]  WITH CHECK ADD  CONSTRAINT [chk_application_status] CHECK  (([current_status]='CANCELLED' OR [current_status]='REJECTED' OR [current_status]='ISSUED' OR [current_status]='PROCESSING' OR [current_status]='BIOMETRIC_COLLECTED' OR [current_status]='APPOINTMENT_BOOKED' OR [current_status]='PAYMENT_PENDING' OR [current_status]='APPROVED' OR [current_status]='RESUBMITTED' OR [current_status]='CORRECTION_REQUIRED' OR [current_status]='UNDER_REVIEW' OR [current_status]='SUBMITTED' OR [current_status]='DRAFT'))
-GO
 
 ALTER TABLE [dbo].[Application] CHECK CONSTRAINT [chk_application_status]
-GO
 
 ALTER TABLE [dbo].[Application]  WITH CHECK ADD  CONSTRAINT [chk_declaration] CHECK  (([declaration_accepted]='N' OR [declaration_accepted]='Y'))
-GO
 
 ALTER TABLE [dbo].[Application] CHECK CONSTRAINT [chk_declaration]
-GO
 
 ALTER TABLE [dbo].[Application]  WITH CHECK ADD  CONSTRAINT [chk_service_type] CHECK  (([service_type]='PASSPORT' OR [service_type]='NIC'))
-GO
 
 ALTER TABLE [dbo].[Application] CHECK CONSTRAINT [chk_service_type]
-GO
 
 ALTER TABLE [dbo].[SupportRequest]  WITH CHECK ADD  CONSTRAINT [chk_support_status] CHECK  (([request_status]='CLOSED' OR [request_status]='RESOLVED' OR [request_status]='IN_PROGRESS' OR [request_status]='OPEN'))
-GO
 
 ALTER TABLE [dbo].[SupportRequest] CHECK CONSTRAINT [chk_support_status]
-GO
 
 ALTER TABLE [dbo].[SupportRequest]  WITH CHECK ADD  CONSTRAINT [chk_support_type] CHECK  (([request_type]='CONTACT' OR [request_type]='COMPLAINT'))
-GO
 
 ALTER TABLE [dbo].[SupportRequest] CHECK CONSTRAINT [chk_support_type]
-GO
 
 ALTER TABLE [dbo].[StatusUpdate]  WITH CHECK ADD  CONSTRAINT [chk_status_update] CHECK  (([status]='CANCELLED' OR [status]='REJECTED' OR [status]='ISSUED' OR [status]='PROCESSING' OR [status]='BIOMETRIC_COLLECTED' OR [status]='APPOINTMENT_BOOKED' OR [status]='PAYMENT_PENDING' OR [status]='APPROVED' OR [status]='RESUBMITTED' OR [status]='CORRECTION_REQUIRED' OR [status]='UNDER_REVIEW' OR [status]='SUBMITTED' OR [status]='DRAFT'))
-GO
 
 ALTER TABLE [dbo].[StatusUpdate] CHECK CONSTRAINT [chk_status_update]
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery]  WITH CHECK ADD  CONSTRAINT [chk_document_delivery_destination] CHECK  (([delivery_method]='HOME_DELIVERY' AND [delivery_address] IS NOT NULL AND [centre_id] IS NULL OR [delivery_method]='CENTRE_COLLECTION' AND [centre_id] IS NOT NULL AND [delivery_address] IS NULL))
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery] CHECK CONSTRAINT [chk_document_delivery_destination]
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery]  WITH CHECK ADD  CONSTRAINT [chk_document_delivery_method] CHECK  (([delivery_method]='CENTRE_COLLECTION' OR [delivery_method]='HOME_DELIVERY'))
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery] CHECK CONSTRAINT [chk_document_delivery_method]
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery]  WITH CHECK ADD  CONSTRAINT [chk_document_delivery_status] CHECK  (([delivery_status]='CANCELLED' OR [delivery_status]='COLLECTED' OR [delivery_status]='DELIVERED' OR [delivery_status]='READY_FOR_COLLECTION' OR [delivery_status]='DISPATCHED' OR [delivery_status]='PREPARING'))
-GO
 
 ALTER TABLE [dbo].[DocumentDelivery] CHECK CONSTRAINT [chk_document_delivery_status]
-GO
 
 ALTER TABLE [dbo].[PassportApplication]  WITH CHECK ADD  CONSTRAINT [chk_passport_service] CHECK  (([service_level]='NORMAL'))
-GO
 
 ALTER TABLE [dbo].[PassportApplication] CHECK CONSTRAINT [chk_passport_service]
-GO
 
 ALTER TABLE [dbo].[PassportApplication]  WITH CHECK ADD  CONSTRAINT [chk_travel_document] CHECK  (([travel_document_type]='ALL_COUNTRIES'))
-GO
 
 ALTER TABLE [dbo].[PassportApplication] CHECK CONSTRAINT [chk_travel_document]
-GO
 
 ALTER TABLE [dbo].[Appointment]  WITH CHECK ADD  CONSTRAINT [chk_appointment_status] CHECK  (([appointment_status]='MISSED' OR [appointment_status]='CANCELLED' OR [appointment_status]='COMPLETED' OR [appointment_status]='CHECKED_IN' OR [appointment_status]='CONFIRMED' OR [appointment_status]='PENDING_PAYMENT'))
-GO
 
 ALTER TABLE [dbo].[Appointment] CHECK CONSTRAINT [chk_appointment_status]
-GO
 
 ALTER TABLE [dbo].[Appointment]  WITH CHECK ADD  CONSTRAINT [chk_appointment_type] CHECK  (([appointment_type]='WALK_IN' OR [appointment_type]='BIOMETRIC'))
-GO
 
 ALTER TABLE [dbo].[Appointment] CHECK CONSTRAINT [chk_appointment_type]
-GO
 
 ALTER TABLE [dbo].[ApplicationReview]  WITH CHECK ADD  CONSTRAINT [chk_review_decision] CHECK  (([decision]='REJECTED' OR [decision]='CORRECTION_REQUIRED' OR [decision]='APPROVED'))
-GO
 
 ALTER TABLE [dbo].[ApplicationReview] CHECK CONSTRAINT [chk_review_decision]
-GO
 
 ALTER TABLE [dbo].[ApplicationReview]  WITH CHECK ADD  CONSTRAINT [chk_review_sequence] CHECK  (([review_sequence]>(0)))
-GO
 
 ALTER TABLE [dbo].[ApplicationReview] CHECK CONSTRAINT [chk_review_sequence]
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument]  WITH CHECK ADD  CONSTRAINT [chk_document_status] CHECK  (([verification_status]='REJECTED' OR [verification_status]='VERIFIED' OR [verification_status]='PENDING'))
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument] CHECK CONSTRAINT [chk_document_status]
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument]  WITH CHECK ADD  CONSTRAINT [chk_document_type] CHECK  (([document_type]='OTHER' OR [document_type]='CITIZENSHIP_CERTIFICATE' OR [document_type]='NIC_PROOF' OR [document_type]='POLICE_REPORT' OR [document_type]='BIRTH_CERTIFICATE' OR [document_type]='PHOTOGRAPH'))
-GO
 
 ALTER TABLE [dbo].[ApplicationDocument] CHECK CONSTRAINT [chk_document_type]
-GO
 
 ALTER TABLE [dbo].[BiometricCollection]  WITH CHECK ADD  CONSTRAINT [chk_biometric_status] CHECK  (([collection_status]='FAILED' OR [collection_status]='COLLECTED' OR [collection_status]='PENDING'))
-GO
 
 ALTER TABLE [dbo].[BiometricCollection] CHECK CONSTRAINT [chk_biometric_status]
-GO
 
 ALTER TABLE [dbo].[Payment]  WITH CHECK ADD  CONSTRAINT [chk_payment_amount] CHECK  (([amount]>(0)))
-GO
 
 ALTER TABLE [dbo].[Payment] CHECK CONSTRAINT [chk_payment_amount]
-GO
 
 ALTER TABLE [dbo].[Payment]  WITH CHECK ADD  CONSTRAINT [chk_payment_status] CHECK  (([payment_status]='REFUNDED' OR [payment_status]='FAILED' OR [payment_status]='PAID' OR [payment_status]='PENDING'))
-GO
 
 ALTER TABLE [dbo].[Payment] CHECK CONSTRAINT [chk_payment_status]
-GO
 
 ALTER TABLE [dbo].[AppointmentCheckIn]  WITH CHECK ADD  CONSTRAINT [chk_check_in_method] CHECK  (([check_in_method]='REFERENCE_NUMBER' OR [check_in_method]='QR'))
-GO
 
 ALTER TABLE [dbo].[AppointmentCheckIn] CHECK CONSTRAINT [chk_check_in_method]
-GO
 
 ALTER TABLE [dbo].[Notification]  WITH CHECK ADD  CONSTRAINT [chk_notification_broadcast] CHECK  (([is_broadcast]='N' OR [is_broadcast]='Y'))
-GO
 
 ALTER TABLE [dbo].[Notification] CHECK CONSTRAINT [chk_notification_broadcast]
-GO
 
 CREATE TABLE [dbo].[ApplicationFeeSettings](
 	[settings_id] [int] NOT NULL,
@@ -1318,11 +1067,80 @@ CREATE TABLE [dbo].[ApplicationFeeSettings](
  CONSTRAINT [chk_application_fee_settings_nic] CHECK ([nic_fee] > (0)),
  CONSTRAINT [chk_application_fee_settings_passport] CHECK ([passport_fee] > (0))
 )
-GO
 
 INSERT INTO [dbo].[ApplicationFeeSettings] ([settings_id], [nic_fee], [passport_fee])
 VALUES (1, 2000.00, 10000.00)
-GO
 
-PRINT 'LankaID database schema created successfully.';
+
+
+-- Run once against identity_issuance_service before starting this version.
+-- Stores the single system-wide maintenance mode setting.
+
+IF OBJECT_ID('dbo.SystemMaintenance', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SystemMaintenance (
+        maintenance_id INT NOT NULL CONSTRAINT pk_system_maintenance PRIMARY KEY,
+        maintenance_active BIT NOT NULL
+            CONSTRAINT df_system_maintenance_active DEFAULT 0,
+        maintenance_message VARCHAR(300) NOT NULL
+            CONSTRAINT df_system_maintenance_message DEFAULT
+            'LankaID is temporarily unavailable for scheduled system maintenance. Please try again later.',
+        updated_at DATETIME2 NULL
+    );
+END;
+
+IF NOT EXISTS (SELECT 1 FROM dbo.SystemMaintenance WHERE maintenance_id = 1)
+BEGIN
+    INSERT INTO dbo.SystemMaintenance (
+        maintenance_id,
+        maintenance_active,
+        maintenance_message
+    ) VALUES (
+        1,
+        0,
+        'LankaID is temporarily unavailable for scheduled system maintenance. Please try again later.'
+    );
+END;
+
+-- Run once against identity_issuance_service before starting this version.
+-- Stores the public notice shown directly below the LankaID landing-page header.
+
+IF OBJECT_ID('dbo.PublicAnnouncement', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PublicAnnouncement (
+        announcement_id INT IDENTITY(1,1) NOT NULL
+            CONSTRAINT pk_public_announcement PRIMARY KEY,
+        title NVARCHAR(140) NOT NULL,
+        message NVARCHAR(1200) NOT NULL,
+        announcement_type VARCHAR(30) NOT NULL,
+        source_label NVARCHAR(80) NULL,
+        source_url VARCHAR(500) NULL,
+        starts_at DATETIME2 NOT NULL,
+        expires_at DATETIME2 NULL,
+        is_active CHAR(1) NOT NULL
+            CONSTRAINT df_public_announcement_active DEFAULT 'Y',
+        created_by_staff_id INT NULL,
+        created_at DATETIME2 NOT NULL
+            CONSTRAINT df_public_announcement_created DEFAULT SYSDATETIME(),
+        CONSTRAINT chk_public_announcement_type CHECK (
+            announcement_type IN ('IMPORTANT', 'PRESIDENTIAL', 'EMERGENCY', 'SERVICE_UPDATE')
+        ),
+        CONSTRAINT chk_public_announcement_active CHECK (is_active IN ('Y', 'N')),
+        CONSTRAINT chk_public_announcement_dates CHECK (
+            expires_at IS NULL OR expires_at > starts_at
+        )
+    );
+
+    CREATE INDEX ix_public_announcement_display
+        ON dbo.PublicAnnouncement (is_active, starts_at, expires_at, created_at DESC);
+END;
+
+    COMMIT TRANSACTION;
+    PRINT 'LankaID database schema created successfully. Start the application to create the administrator.';
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT > 0
+        ROLLBACK TRANSACTION;
+    THROW;
+END CATCH;
 GO

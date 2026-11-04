@@ -37,22 +37,11 @@ public class AdminAccountService {
                 .findByEmailIgnoreCase(ADMIN_EMAIL)
                 .orElseGet(this::createAdminUser);
 
-        if (!passwordEncoder.matches(ADMIN_PASSWORD, adminUser.getPasswordHash())) {
-            adminUser.setPasswordHash(passwordEncoder.encode(ADMIN_PASSWORD));
+        // Provision missing records only; a restart must preserve saved credentials and status.
+        if (staffAccountRepository.findById(adminUser.getUserId()).isEmpty()) {
+            StaffAccount adminAccount = new StaffAccount(adminUser.getUserId(), ADMIN_EMPLOYEE_NO);
+            staffAccountRepository.save(adminAccount);
         }
-        adminUser.setAccountStatus("ACTIVE");
-        adminUser.setEmailVerified("Y");
-        adminUser.setPhoneVerified("Y");
-        userAccountRepository.save(adminUser);
-
-        StaffAccount adminAccount = staffAccountRepository
-                .findById(adminUser.getUserId())
-                .orElseGet(() -> new StaffAccount(adminUser.getUserId(), ADMIN_EMPLOYEE_NO));
-
-        adminAccount.setEmployeeNo(ADMIN_EMPLOYEE_NO);
-        adminAccount.setStaffRole(ADMIN_ROLE);
-        adminAccount.setStaffStatus("ACTIVE");
-        staffAccountRepository.save(adminAccount);
     }
 
     public Optional<UserAccount> authenticateAdmin(String email, String password) {
@@ -77,6 +66,9 @@ public class AdminAccountService {
         adminUser.setEmail(ADMIN_EMAIL);
         adminUser.setPhone(ADMIN_PHONE);
         adminUser.setPasswordHash(passwordEncoder.encode(ADMIN_PASSWORD));
+        adminUser.setAccountStatus("ACTIVE");
+        adminUser.setEmailVerified("Y");
+        adminUser.setPhoneVerified("Y");
         return userAccountRepository.save(adminUser);
     }
 }

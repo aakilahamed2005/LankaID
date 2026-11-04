@@ -363,9 +363,7 @@ class UiAndSchemaConsistencyTests {
 
     @Test
     void databaseSetupScriptsContainEveryMappedPhysicalTable() throws IOException {
-        String sql = Files.readString(Path.of("database", "current-database-schema.sql"))
-                + Files.readString(Path.of("database", "system-maintenance.sql"))
-                + Files.readString(Path.of("database", "public-announcements.sql"));
+        String sql = Files.readString(Path.of("database", "current-database-schema.sql"));
         List<String> tables = List.of(
                 "GovernmentIdentityRecord", "UserAccount", "CitizenAccount", "StaffAccount", "Centre",
                 "Application", "NICApplication", "PassportApplication", "ApplicationDocument",

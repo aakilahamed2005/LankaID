@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,6 +63,50 @@ class AdminAccountServiceTests {
         assertEquals(50, adminCaptor.getValue().getUserId());
         assertEquals("ADMIN-001", adminCaptor.getValue().getEmployeeNo());
         assertEquals("SYSTEM_ADMIN", adminCaptor.getValue().getStaffRole());
+    }
+
+    @Test
+    void restartPreservesExistingAdminPasswordAndAccountStatus() {
+        UserAccount user = new UserAccount();
+        user.setUserId(50);
+        user.setEmail("admin@gov.lk");
+        String changedHash = new BCryptPasswordEncoder().encode("changedPassword123");
+        user.setPasswordHash(changedHash);
+        user.setAccountStatus("INACTIVE");
+        StaffAccount staff = new StaffAccount(50, "ADMIN-001");
+        staff.setStaffStatus("INACTIVE");
+        when(userAccountRepository.findByEmailIgnoreCase("admin@gov.lk"))
+                .thenReturn(Optional.of(user));
+        when(staffAccountRepository.findById(50)).thenReturn(Optional.of(staff));
+
+        AdminAccountService service = new AdminAccountService(userAccountRepository, staffAccountRepository);
+        service.createDefaultAdminAccount();
+        service.createDefaultAdminAccount();
+
+        assertEquals(changedHash, user.getPasswordHash());
+        assertEquals("INACTIVE", user.getAccountStatus());
+        assertEquals("INACTIVE", staff.getStaffStatus());
+        verify(userAccountRepository, never()).save(any(UserAccount.class));
+        verify(staffAccountRepository, never()).save(any(StaffAccount.class));
+    }
+
+    @Test
+    void restoresMissingStaffRecordForAnExistingAdminWithoutResettingPassword() {
+        UserAccount user = new UserAccount();
+        user.setUserId(50);
+        user.setPasswordHash("existing-password-hash");
+        when(userAccountRepository.findByEmailIgnoreCase("admin@gov.lk"))
+                .thenReturn(Optional.of(user));
+        when(staffAccountRepository.findById(50)).thenReturn(Optional.empty());
+
+        new AdminAccountService(userAccountRepository, staffAccountRepository).createDefaultAdminAccount();
+
+        ArgumentCaptor<StaffAccount> staffCaptor = ArgumentCaptor.forClass(StaffAccount.class);
+        verify(staffAccountRepository).save(staffCaptor.capture());
+        assertEquals(50, staffCaptor.getValue().getUserId());
+        assertEquals("SYSTEM_ADMIN", staffCaptor.getValue().getStaffRole());
+        assertEquals("existing-password-hash", user.getPasswordHash());
+        verify(userAccountRepository, never()).save(any(UserAccount.class));
     }
 
     @Test

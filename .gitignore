@@ -37,3 +37,11 @@ build/
 
 # Local viva credentials contain plaintext demo passwords
 /LankaID-viva-passwords.csv
+
+# Local temporary files and generated document exports
+/tmp/
+/output/
+
+# Local viva data and appointment pass
+/LankaID-viva-sample-data.md
+/LankaID-aakil-missed-biometric-QR.png
