@@ -10,17 +10,18 @@ LankaID is a university group project that brings citizen applications, officer 
 
 [Screenshots](#screenshots) · [Features](#features) · [Run locally](#run-locally) · [Project structure](#project-structure) · [Team](#team)
 
-> Academic prototype. Payments, biometric hardware capture, and document production are simulated. Citizen registration requires configured email and SMS delivery.
+> **Academic demonstration only.** LankaID is a student project, not an official government service. Do not deploy it in production or use it to collect, store, or process real citizen data. Use fictional test data only. See the [disclaimer for anyone cloning this repository](#academic-use-disclaimer).
 
 ## Screenshots
 
-Captured from the running application. These show the public portal, account access, and the first step of walk-in booking.
+Screenshots of the academic prototype, with the government emblem blurred for presentation. Government names, branding, and official-sounding interface text are illustrative only and do not imply affiliation, authorization, or endorsement.
 
-![LankaID landing page with NIC and passport service entry points](docs/screenshots/landing-page.jpg)
+![LankaID landing page with NIC and passport service entry points](docs/screenshots/landing-page.png)
 
 | Citizen sign-in | Walk-in appointment booking |
 | --- | --- |
-| ![Citizen sign-in with Citizen, Officer and Register tabs](docs/screenshots/sign-in.jpg) | ![Walk-in booking with phone verification and appointment steps](docs/screenshots/walk-in-booking.jpg) |
+| ![Citizen sign-in with Citizen, Officer and Register tabs](docs/screenshots/sign-in.png) | ![Walk-in booking with phone verification and appointment steps](docs/screenshots/walk-in-booking.png) |
+
 ## Features
 
 - **Citizen applications** — Apply for a NIC or passport, save drafts, upload supporting documents, and track progress.
@@ -172,8 +173,19 @@ The IT numbers shown in the commit history and contributor names identify the fo
 | **IT25100604** | **Dharshan S** | Citizen support and service management |
 
 For example, a contribution by `IT25101235` is a contribution by **Aakil Ahamed (Marickar A A A)**. Commits may also display a member's name or university email (`it<number>@my.sliit.lk`) instead of the IT account name. The table records the main module assignments; shared services connect the members' work.
-## Project scope
 
-LankaID demonstrates the document application lifecycle for an academic project. It is not connected to government identity systems, a live payment processor, biometric capture hardware, or physical document production.
+## Academic-use disclaimer
+
+LankaID was created solely for university coursework, learning, and academic demonstration. It is **not an official Government of Sri Lanka service**, is not affiliated with or endorsed by any government agency, and must not be presented as an authorized identity-issuing system. Government names, emblems, and interface wording are used only to illustrate the academic scenario.
+
+**For anyone who clones, forks, runs, or demonstrates this repository:**
+
+- Use it only in a local or isolated test environment with fictional or synthetic data.
+- **Do not use it in production, offer it as a public citizen service, or collect, store, upload, or process real citizen data.** This includes real NIC/passport numbers, birth certificates, photographs, biometric data, contact details, and payment information.
+- Do not use it for impersonation, fraud, unauthorized identity verification, unlawful data collection, or any other illegal or deceptive purpose. The authors do not intend or authorize such use.
+- Payments, biometric capture, and document production are demonstrations. The project is not connected to government identity systems or authorized to verify identities or issue official documents.
+- The code is provided as an academic prototype, without guarantees of security, privacy, correctness, availability, or fitness for real-world use. Anyone using a copy is responsible for keeping it within this academic scope and complying with applicable rules and laws.
+
+Citizen registration requires configured email and SMS delivery. Use only test accounts and contact destinations you control when demonstrating these integrations.
 
 No open-source license has been added to this repository.
